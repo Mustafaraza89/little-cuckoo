@@ -25,60 +25,72 @@ import { BRAND } from '@/lib/constants';
 export const revalidate = 0; // Fresh database synchronization
 
 export default async function HomePage() {
-  // Concurrent DB Queries
-  const [
-    categories,
-    featuredProducts,
-    newArrivals,
-    bestSellers,
-    reviews,
-    cmsHero,
-    cmsBrandStory,
-    cmsLifestyle,
-  ] = await Promise.all([
-    prisma.category.findMany({
-      where: { isActive: true },
-      orderBy: { sortOrder: 'asc' },
-      include: { _count: { select: { products: true } } },
-    }),
-    prisma.product.findMany({
-      where: { isFeatured: true, status: 'PUBLISHED' },
-      take: 4,
-      include: {
-        category: true,
-        images: { orderBy: { sortOrder: 'asc' } },
-        variants: true,
-      },
-    }),
-    prisma.product.findMany({
-      where: { isNewArrival: true, status: 'PUBLISHED' },
-      take: 4,
-      orderBy: { createdAt: 'desc' },
-      include: {
-        category: true,
-        images: { orderBy: { sortOrder: 'asc' } },
-        variants: true,
-      },
-    }),
-    prisma.product.findMany({
-      where: { isBestSeller: true, status: 'PUBLISHED' },
-      take: 4,
-      include: {
-        category: true,
-        images: { orderBy: { sortOrder: 'asc' } },
-        variants: true,
-      },
-    }),
-    prisma.review.findMany({
-      where: { isApproved: true },
-      take: 3,
-      orderBy: { rating: 'desc' },
-      include: { product: { select: { title: true, slug: true } } },
-    }),
-    prisma.cMSSection.findUnique({ where: { sectionKey: 'hero' } }),
-    prisma.cMSSection.findUnique({ where: { sectionKey: 'brandStory' } }),
-    prisma.cMSSection.findUnique({ where: { sectionKey: 'lifestyle' } }),
-  ]);
+  let categories: any[] = [];
+  let featuredProducts: any[] = [];
+  let newArrivals: any[] = [];
+  let bestSellers: any[] = [];
+  let reviews: any[] = [];
+  let cmsHero: any = null;
+  let cmsBrandStory: any = null;
+  let cmsLifestyle: any = null;
+
+  try {
+    const results = await Promise.all([
+      prisma.category.findMany({
+        where: { isActive: true },
+        orderBy: { sortOrder: 'asc' },
+        include: { _count: { select: { products: true } } },
+      }),
+      prisma.product.findMany({
+        where: { isFeatured: true, status: 'PUBLISHED' },
+        take: 4,
+        include: {
+          category: true,
+          images: { orderBy: { sortOrder: 'asc' } },
+          variants: true,
+        },
+      }),
+      prisma.product.findMany({
+        where: { isNewArrival: true, status: 'PUBLISHED' },
+        take: 4,
+        orderBy: { createdAt: 'desc' },
+        include: {
+          category: true,
+          images: { orderBy: { sortOrder: 'asc' } },
+          variants: true,
+        },
+      }),
+      prisma.product.findMany({
+        where: { isBestSeller: true, status: 'PUBLISHED' },
+        take: 4,
+        include: {
+          category: true,
+          images: { orderBy: { sortOrder: 'asc' } },
+          variants: true,
+        },
+      }),
+      prisma.review.findMany({
+        where: { isApproved: true },
+        take: 3,
+        orderBy: { rating: 'desc' },
+        include: { product: { select: { title: true, slug: true } } },
+      }),
+      prisma.cMSSection.findUnique({ where: { sectionKey: 'hero' } }),
+      prisma.cMSSection.findUnique({ where: { sectionKey: 'brandStory' } }),
+      prisma.cMSSection.findUnique({ where: { sectionKey: 'lifestyle' } }),
+    ]);
+
+    categories = results[0];
+    featuredProducts = results[1];
+    newArrivals = results[2];
+    bestSellers = results[3];
+    reviews = results[4];
+    cmsHero = results[5];
+    cmsBrandStory = results[6];
+    cmsLifestyle = results[7];
+  } catch (err) {
+    console.warn('[HomePage] Database query resilient fallback:', err);
+  }
 
   // Lead anchor product for hero floating card
   const heroAnchorProduct = featuredProducts[0] || bestSellers[0] || {
