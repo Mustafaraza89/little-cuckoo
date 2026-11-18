@@ -25,6 +25,16 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false, error: 'Invalid credentials' }, { status: 401 });
     }
 
+    if (!user.isActive) {
+      return NextResponse.json({
+        success: false,
+        requireVerification: true,
+        email: user.email,
+        phone: user.phone,
+        error: 'Please verify your email or mobile number with the OTP code before logging in.',
+      }, { status: 403 });
+    }
+
     const token = signToken({
       userId: user.id,
       email: user.email,

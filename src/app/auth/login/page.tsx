@@ -1,17 +1,32 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { Lock, Mail, ArrowRight, AlertCircle } from 'lucide-react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { Lock, Mail, ArrowRight, AlertCircle, CheckCircle2 } from 'lucide-react';
 import GoogleSignInButton from '@/components/auth/GoogleSignInButton';
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
-  const [email, setEmail] = useState('');
+  const searchParams = useSearchParams();
+
+  const isVerified = searchParams.get('verified') === 'true';
+  const prefillEmail = searchParams.get('email') || '';
+
+  const [email, setEmail] = useState(prefillEmail);
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [successBanner, setSuccessBanner] = useState(isVerified);
+
+  useEffect(() => {
+    if (prefillEmail) {
+      setEmail(prefillEmail);
+    }
+    if (isVerified) {
+      setSuccessBanner(true);
+    }
+  }, [prefillEmail, isVerified]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -56,6 +71,19 @@ export default function LoginPage() {
       </div>
 
       <div className="bg-white p-6 sm:p-8 rounded-3xl border border-cocoa-500/10 shadow-soft space-y-5">
+        {/* Verification Success Banner */}
+        {successBanner && (
+          <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-start gap-2.5 animate-in fade-in slide-in-from-top-2 duration-300">
+            <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
+            <div className="space-y-0.5">
+              <p className="font-bold">Account Confirmed & Verified!</p>
+              <p className="text-emerald-700">
+                Your credentials are now active. Please sign in below with your password.
+              </p>
+            </div>
+          </div>
+        )}
+
         <form onSubmit={handleLogin} className="space-y-4">
           <div>
             <label className="block text-xs font-bold text-charcoal-700 mb-1">Email Address *</label>
@@ -97,7 +125,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 rounded-full bg-strawberry-400 hover:bg-strawberry-500 disabled:opacity-50 text-white font-bold text-xs shadow-pill transition-all flex items-center justify-center gap-2"
+            className="w-full py-3 rounded-full bg-strawberry-400 hover:bg-strawberry-500 disabled:opacity-50 text-white font-bold text-xs shadow-pill transition-all flex items-center justify-center gap-2 cursor-pointer"
           >
             <span>{loading ? 'Signing in...' : 'Sign In to Account'}</span>
             <ArrowRight className="w-4 h-4" />
@@ -129,5 +157,19 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="max-w-md mx-auto px-4 py-24 text-center">
+          <div className="w-8 h-8 border-3 border-strawberry-400 border-t-transparent rounded-full animate-spin mx-auto" />
+        </div>
+      }
+    >
+      <LoginForm />
+    </Suspense>
   );
 }

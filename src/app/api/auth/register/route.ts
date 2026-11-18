@@ -25,39 +25,21 @@ export async function POST(req: NextRequest) {
       data: {
         email: email.toLowerCase().trim(),
         name,
-        phone,
+        phone: phone ? phone.trim() : null,
         passwordHash,
         role: 'CUSTOMER',
+        isActive: false, // Pending verification
       },
     });
 
-    const token = signToken({
-      userId: user.id,
-      email: user.email,
-      role: user.role,
-      name: user.name,
-    });
-
-    const response = NextResponse.json({
+    // Verification required before login
+    return NextResponse.json({
       success: true,
-      user: {
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        role: user.role,
-      },
-      token,
+      requireVerification: true,
+      email: user.email,
+      phone: user.phone,
+      message: 'Account created. Please confirm your email or mobile number with the OTP code.',
     });
-
-    response.cookies.set('cuckoo_auth_token', token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      path: '/',
-      maxAge: 60 * 60 * 24 * 7,
-    });
-
-    return response;
   } catch (error: any) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }

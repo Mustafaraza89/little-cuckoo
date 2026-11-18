@@ -24,7 +24,7 @@ export default function RegisterPage() {
     setError('');
 
     try {
-      // If Supabase Auth is configured, trigger Supabase signup with Email OTP
+      // 1. If Supabase Auth is configured, trigger Supabase signup
       if (isSupabaseConfigured && supabase) {
         const { error: supaError } = await supabase.auth.signUp({
           email: email.toLowerCase().trim(),
@@ -43,7 +43,7 @@ export default function RegisterPage() {
         return;
       }
 
-      // Default local API registration
+      // 2. Default local/database API registration
       const res = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -55,7 +55,8 @@ export default function RegisterPage() {
         throw new Error(data.error || 'Registration failed');
       }
 
-      router.push('/account');
+      // Switch to OTP verification screen for email or phone confirmation
+      setShowOtp(true);
     } catch (err: any) {
       setError(err.message || 'Registration failed');
     } finally {
@@ -63,8 +64,10 @@ export default function RegisterPage() {
     }
   };
 
-  const handleOtpSuccess = () => {
-    router.push('/account');
+  // After OTP confirmation, redirect user directly to Login page
+  const handleOtpSuccess = (result: { email?: string; phone?: string; method: string }) => {
+    const verifiedEmail = result.email || email;
+    router.push(`/auth/login?verified=true&email=${encodeURIComponent(verifiedEmail)}`);
   };
 
   // If OTP screen is triggered
@@ -73,8 +76,9 @@ export default function RegisterPage() {
       <div className="max-w-md mx-auto px-4 py-16 sm:py-24">
         <OtpVerification
           email={email}
+          phone={phone}
           onSuccess={handleOtpSuccess}
-          onBackToEmail={() => setShowOtp(false)}
+          onBackToRegister={() => setShowOtp(false)}
           type="signup"
         />
       </div>
@@ -126,14 +130,16 @@ export default function RegisterPage() {
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-charcoal-700 mb-1">Mobile Number</label>
+            <label className="block text-xs font-bold text-charcoal-700 mb-1">
+              Mobile Number <span className="text-cocoa-400 font-normal">(for SMS/WhatsApp OTP)</span>
+            </label>
             <div className="relative">
               <Phone className="w-4 h-4 text-cocoa-300 absolute left-3.5 top-3" />
               <input
                 type="tel"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
-                placeholder="10-digit mobile"
+                placeholder="+91 98765 43210"
                 className="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-cocoa-500/20 text-xs text-charcoal-700 focus:outline-none focus:border-strawberry-400"
               />
             </div>
@@ -165,9 +171,9 @@ export default function RegisterPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 rounded-full bg-strawberry-400 hover:bg-strawberry-500 disabled:opacity-50 text-white font-bold text-xs shadow-pill transition-all flex items-center justify-center gap-2"
+            className="w-full py-3 rounded-full bg-strawberry-400 hover:bg-strawberry-500 disabled:opacity-50 text-white font-bold text-xs shadow-pill transition-all flex items-center justify-center gap-2 cursor-pointer"
           >
-            <span>{loading ? 'Creating Account...' : 'Register Account'}</span>
+            <span>{loading ? 'Creating Account...' : 'Continue to Verification'}</span>
             <ArrowRight className="w-4 h-4" />
           </button>
         </form>
