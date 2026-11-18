@@ -64,6 +64,8 @@ interface Product {
   status: string;
   categoryId: string;
   category: Category;
+  flipkartUrl?: string | null;
+  flipkartListingLabel?: string | null;
   images: ProductImage[];
   variants: Variant[];
 }
@@ -102,6 +104,8 @@ export default function ProductCatalogManager({ initialProducts, categories }: P
     isNewArrival: true,
     isBestSeller: false,
     status: 'PUBLISHED',
+    flipkartUrl: '',
+    flipkartListingLabel: 'Also on Flipkart',
     primaryImageUrl: 'https://images.unsplash.com/photo-1515488764276-beab7607c1e6?auto=format&fit=crop&w=800&q=85',
     variants: DEFAULT_SIZES.map(size => ({
       size,
@@ -129,6 +133,8 @@ export default function ProductCatalogManager({ initialProducts, categories }: P
       isNewArrival: true,
       isBestSeller: false,
       status: 'PUBLISHED',
+      flipkartUrl: '',
+      flipkartListingLabel: 'Also on Flipkart',
       primaryImageUrl: 'https://images.unsplash.com/photo-1515488764276-beab7607c1e6?auto=format&fit=crop&w=800&q=85',
       variants: DEFAULT_SIZES.map(size => ({
         size,
@@ -164,6 +170,8 @@ export default function ProductCatalogManager({ initialProducts, categories }: P
       isNewArrival: p.isNewArrival,
       isBestSeller: p.isBestSeller,
       status: p.status,
+      flipkartUrl: p.flipkartUrl || '',
+      flipkartListingLabel: p.flipkartListingLabel || 'Also on Flipkart',
       primaryImageUrl: p.images[0]?.url || 'https://images.unsplash.com/photo-1515488764276-beab7607c1e6?auto=format&fit=crop&w=800&q=85',
       variants: p.variants.map(v => ({
         size: v.size,
@@ -199,6 +207,8 @@ export default function ProductCatalogManager({ initialProducts, categories }: P
         isNewArrival: formData.isNewArrival,
         isBestSeller: formData.isBestSeller,
         status: formData.status,
+        flipkartUrl: formData.flipkartUrl?.trim() || null,
+        flipkartListingLabel: formData.flipkartListingLabel?.trim() || null,
         images: [{ url: formData.primaryImageUrl, altText: formData.title }],
         variants: formData.variants,
       };
@@ -364,6 +374,7 @@ export default function ProductCatalogManager({ initialProducts, categories }: P
                 <th className="py-3 px-4">Price</th>
                 <th className="py-3 px-4">Variants / Stock</th>
                 <th className="py-3 px-4">Badges & Status</th>
+                <th className="py-3 px-4">Marketplace</th>
                 <th className="py-3 px-4 text-right">Actions</th>
               </tr>
             </thead>
@@ -456,6 +467,23 @@ export default function ProductCatalogManager({ initialProducts, categories }: P
                             </span>
                           )}
                         </div>
+                      </td>
+
+                      <td className="py-3 px-4">
+                        {p.flipkartUrl ? (
+                          <a
+                            href={p.flipkartUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200 hover:bg-amber-200 transition-colors"
+                            title={p.flipkartUrl}
+                          >
+                            <span>Flipkart</span>
+                            <ExternalLink className="w-2.5 h-2.5" />
+                          </a>
+                        ) : (
+                          <span className="text-[10px] text-cocoa-400 italic">None</span>
+                        )}
                       </td>
 
                       <td className="py-3 px-4 text-right">
@@ -618,6 +646,49 @@ export default function ProductCatalogManager({ initialProducts, categories }: P
                     placeholder="https://images.unsplash.com/photo-..."
                     className="w-full px-3 py-2 bg-vanilla-50 border border-cocoa-500/15 rounded-xl focus:outline-none focus:border-strawberry-400"
                   />
+                </div>
+
+                {/* Flipkart Marketplace Integration */}
+                <div className="sm:col-span-2 p-4 bg-amber-50/70 border border-amber-200 rounded-2xl space-y-2.5">
+                  <div className="flex items-center justify-between">
+                    <label className="font-bold text-amber-950 flex items-center gap-1.5 text-xs">
+                      <ExternalLink className="w-3.5 h-3.5 text-amber-600" />
+                      Flipkart Marketplace Listing (Optional)
+                    </label>
+                    {formData.flipkartUrl && (
+                      <a
+                        href={formData.flipkartUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-[11px] text-amber-700 hover:text-amber-900 font-semibold underline flex items-center gap-1"
+                      >
+                        Verify Link ↗
+                      </a>
+                    )}
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                    <div className="sm:col-span-2">
+                      <input
+                        type="url"
+                        value={formData.flipkartUrl}
+                        onChange={(e) => setFormData({ ...formData, flipkartUrl: e.target.value })}
+                        placeholder="https://www.flipkart.com/little-cuckoo-..."
+                        className="w-full px-3 py-2 bg-white border border-amber-200 rounded-xl focus:outline-none focus:border-amber-400 text-xs"
+                      />
+                    </div>
+                    <div>
+                      <input
+                        type="text"
+                        value={formData.flipkartListingLabel}
+                        onChange={(e) => setFormData({ ...formData, flipkartListingLabel: e.target.value })}
+                        placeholder="Also on Flipkart"
+                        className="w-full px-3 py-2 bg-white border border-amber-200 rounded-xl focus:outline-none focus:border-amber-400 text-xs"
+                      />
+                    </div>
+                  </div>
+                  <p className="text-[10px] text-amber-800/80">
+                    When provided, customers will see a verified "Buy on Flipkart" button on this garment&apos;s product details page.
+                  </p>
                 </div>
 
                 {/* Description */}

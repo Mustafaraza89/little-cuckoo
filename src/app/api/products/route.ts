@@ -98,6 +98,8 @@ export async function POST(req: NextRequest) {
       isFeatured,
       isNewArrival,
       isBestSeller,
+      flipkartUrl,
+      flipkartListingLabel,
       images = [],
       variants = [],
     } = body;
@@ -119,6 +121,9 @@ export async function POST(req: NextRequest) {
         isFeatured: Boolean(isFeatured),
         isNewArrival: Boolean(isNewArrival),
         isBestSeller: Boolean(isBestSeller),
+        flipkartUrl: flipkartUrl?.trim() || null,
+        flipkartListingLabel: flipkartListingLabel?.trim() || null,
+        flipkartLastVerifiedAt: flipkartUrl ? new Date() : null,
         images: {
           create: images.map((img: any, idx: number) => ({
             url: img.url,

@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Lock, Mail, ArrowRight, AlertCircle } from 'lucide-react';
+import GoogleSignInButton from '@/components/auth/GoogleSignInButton';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -102,6 +103,17 @@ export default function LoginPage() {
             <ArrowRight className="w-4 h-4" />
           </button>
         </form>
+
+        <div className="relative my-3">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-cocoa-500/10"></div>
+          </div>
+          <div className="relative flex justify-center text-[10px] uppercase tracking-wider">
+            <span className="bg-white px-3 text-cocoa-400 font-bold">Or</span>
+          </div>
+        </div>
+
+        <GoogleSignInButton redirectTo="/account" label="Sign in with Google" />
 
         <div className="pt-4 border-t border-cocoa-500/10 text-center text-xs text-cocoa-500">
           <span>New to Little Cuckoo? </span>

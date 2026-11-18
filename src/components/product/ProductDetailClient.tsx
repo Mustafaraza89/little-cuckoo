@@ -16,7 +16,8 @@ import {
   Check, 
   Sparkles,
   ChevronDown,
-  Info
+  Info,
+  ExternalLink
 } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { useWishlist } from '@/context/WishlistContext';
@@ -308,6 +309,20 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
             >
               Instant Buy Now &rarr;
             </button>
+
+            {/* Secondary Marketplace CTA: Flipkart */}
+            {product.flipkartUrl && (
+              <a
+                href={product.flipkartUrl}
+                target="_blank"
+                rel="noopener noreferrer nofollow"
+                className="w-full py-3 px-6 rounded-2xl border-2 border-amber-300 bg-amber-50/70 hover:bg-amber-100 text-amber-950 font-bold text-xs sm:text-sm transition-all shadow-xs flex items-center justify-center gap-2 group"
+              >
+                <ShoppingBag className="w-4 h-4 text-amber-600 group-hover:scale-105 transition-transform" />
+                <span>{product.flipkartListingLabel || 'View on Flipkart'}</span>
+                <ExternalLink className="w-3.5 h-3.5 text-amber-600/80" />
+              </a>
+            )}
           </div>
 
           {/* Delivery & Assurance Perks */}

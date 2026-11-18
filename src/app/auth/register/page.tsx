@@ -4,6 +4,9 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Lock, Mail, User, Phone, ArrowRight, AlertCircle } from 'lucide-react';
+import GoogleSignInButton from '@/components/auth/GoogleSignInButton';
+import OtpVerification from '@/components/auth/OtpVerification';
+import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -13,6 +16,7 @@ export default function RegisterPage() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [showOtp, setShowOtp] = useState(false);
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -20,6 +24,26 @@ export default function RegisterPage() {
     setError('');
 
     try {
+      // If Supabase Auth is configured, trigger Supabase signup with Email OTP
+      if (isSupabaseConfigured && supabase) {
+        const { error: supaError } = await supabase.auth.signUp({
+          email: email.toLowerCase().trim(),
+          password,
+          options: {
+            data: {
+              name,
+              phone,
+            },
+          },
+        });
+
+        if (supaError) throw supaError;
+        setShowOtp(true);
+        setLoading(false);
+        return;
+      }
+
+      // Default local API registration
       const res = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -38,6 +62,24 @@ export default function RegisterPage() {
       setLoading(false);
     }
   };
+
+  const handleOtpSuccess = () => {
+    router.push('/account');
+  };
+
+  // If OTP screen is triggered
+  if (showOtp) {
+    return (
+      <div className="max-w-md mx-auto px-4 py-16 sm:py-24">
+        <OtpVerification
+          email={email}
+          onSuccess={handleOtpSuccess}
+          onBackToEmail={() => setShowOtp(false)}
+          type="signup"
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-md mx-auto px-4 py-16 sm:py-24 space-y-8">
@@ -129,6 +171,17 @@ export default function RegisterPage() {
             <ArrowRight className="w-4 h-4" />
           </button>
         </form>
+
+        <div className="relative my-3">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-cocoa-500/10"></div>
+          </div>
+          <div className="relative flex justify-center text-[10px] uppercase tracking-wider">
+            <span className="bg-white px-3 text-cocoa-400 font-bold">Or</span>
+          </div>
+        </div>
+
+        <GoogleSignInButton redirectTo="/account" label="Sign up with Google" />
 
         <div className="pt-4 border-t border-cocoa-500/10 text-center text-xs text-cocoa-500">
           <span>Already have an account? </span>

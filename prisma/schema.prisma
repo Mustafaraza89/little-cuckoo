@@ -86,6 +86,9 @@ model Product {
   taxPercent       Float            @default(5.0)         // 5% or 12%
   rating           Float            @default(5.0)
   reviewCount      Int              @default(0)
+  flipkartUrl      String?          // e.g. "https://www.flipkart.com/..."
+  flipkartListingLabel String?      // e.g. "Also on Flipkart"
+  flipkartLastVerifiedAt DateTime?
   createdAt        DateTime         @default(now())
   updatedAt        DateTime         @updatedAt
 

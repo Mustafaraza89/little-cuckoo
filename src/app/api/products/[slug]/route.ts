@@ -88,6 +88,9 @@ export async function PUT(
         isBestSeller: body.isBestSeller !== undefined ? Boolean(body.isBestSeller) : existing.isBestSeller,
         status: body.status !== undefined ? body.status : existing.status,
         categoryId: body.categoryId !== undefined ? body.categoryId : existing.categoryId,
+        flipkartUrl: body.flipkartUrl !== undefined ? (body.flipkartUrl?.trim() || null) : existing.flipkartUrl,
+        flipkartListingLabel: body.flipkartListingLabel !== undefined ? (body.flipkartListingLabel?.trim() || null) : existing.flipkartListingLabel,
+        flipkartLastVerifiedAt: body.flipkartUrl ? new Date() : existing.flipkartLastVerifiedAt,
       },
       include: {
         variants: true,

@@ -92,6 +92,11 @@ export default function ProductCard({ product }: ProductCardProps) {
                 -{discountPercent}%
               </span>
             )}
+            {product.flipkartUrl && (
+              <span className="px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider bg-amber-100 text-amber-900 border border-amber-200 shadow-xs">
+                Flipkart
+              </span>
+            )}
           </div>
 
           {/* Wishlist Button Top Right */}

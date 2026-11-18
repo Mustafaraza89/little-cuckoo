@@ -78,6 +78,9 @@ export interface ProductItem {
   taxPercent: number;
   rating: number;
   reviewCount: number;
+  flipkartUrl?: string | null;
+  flipkartListingLabel?: string | null;
+  flipkartLastVerifiedAt?: string | null;
   categoryId: string;
   category?: CategoryItem;
   images: ProductImageItem[];
