@@ -4,6 +4,8 @@ import { getUserFromRequest } from '@/lib/auth';
 import { generateOrderNumber, generateInvoiceNumber } from '@/lib/utils';
 import { BRAND } from '@/lib/constants';
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(req: NextRequest) {
   try {
     const user = getUserFromRequest(req);
